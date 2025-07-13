@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Musical Mind - Emotion-Aware Music Playground</title>
+    <title>Music Mind - Emotion-Aware Music Playground</title>
+    <link rel="icon" type="image/png" href="music-mind.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <style>
@@ -76,11 +77,16 @@
     <canvas id="particles"></canvas>
     <div class="content">
         <header class="bg-gradient-to-r from-purple-900 to-blue-800 p-6 text-center relative">
-            <h1 class="text-4xl font-bold mb-2">🎼 Musical Mind</h1>
+            <h1 class="text-4xl font-bold mb-2 flex items-center justify-center space-x-3">
+                <img src="music-mind.png" alt="Music Mind Logo" class="h-10 w-10 rounded-full">
+                <span>Music Mind</span>
+            </h1>
             <p class="text-xl opacity-80">Emotion-Aware Collaborative Music Playground</p>
             <button id="tutorial"
                 class="absolute top-4 right-4 bg-white text-black px-3 py-1 rounded-full text-sm font-bold">Tutorial</button>
         </header>
+
+
 
         <main class="flex-grow container mx-auto px-4 py-8">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
