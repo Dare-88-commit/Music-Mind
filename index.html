@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Musical Mind - Emotion-Aware Music Playground</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <style>
+        body {
+            transition: background-color 0.5s ease;
+        }
+
+        .neon-active {
+            box-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #e60073, 0 0 40px #e60073;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 0.8;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0.8;
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        .badge {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            z-index: 100;
+        }
+
+        #particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .spotlight {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, transparent 100px, rgba(0, 0, 0, 0.8) 150px);
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        .theme-transition * {
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900 text-white min-h-screen flex flex-col theme-transition">
+    <canvas id="particles"></canvas>
+    <div class="content">
+        <header class="bg-gradient-to-r from-purple-900 to-blue-800 p-6 text-center relative">
+            <h1 class="text-4xl font-bold mb-2">🎼 Musical Mind</h1>
+            <p class="text-xl opacity-80">Emotion-Aware Collaborative Music Playground</p>
+            <button id="tutorial"
+                class="absolute top-4 right-4 bg-white text-black px-3 py-1 rounded-full text-sm font-bold">Tutorial</button>
+        </header>
+
+        <main class="flex-grow container mx-auto px-4 py-8">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Left Panel - Controls -->
+                <div class="bg-gray-800 rounded-xl p-6 shadow-lg relative">
+                    <h2 class="text-2xl font-bold mb-4">Controls</h2>
+
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block mb-2">Instrument</label>
+                            <select id="instrument" class="w-full bg-gray-700 rounded p-2">
+                                <option value="synth">Synth</option>
+                                <option value="piano">Piano</option>
+                                <option value="pluck">Pluck Synth</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block mb-2">Scale</label>
+                            <select id="scale" class="w-full bg-gray-700 rounded p-2">
+                                <option value="major">Major</option>
+                                <option value="minor">Minor</option>
+                                <option value="pentatonic">Pentatonic</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block mb-2">Tempo: <span id="tempoValue">120</span> BPM</label>
+                            <input id="tempo" type="range" min="40" max="200" value="120" class="w-full">
+                        </div>
+
+                        <div class="flex space-x-4">
+                            <button id="play"
+                                class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded flex-grow">Play</button>
+                            <button id="stop"
+                                class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded flex-grow">Stop</button>
+                            <button id="clear"
+                                class="bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded flex-grow">Clear</button>
+                        </div>
+
+                        <div class="pt-4 border-t border-gray-700">
+                            <h3 class="text-xl font-bold mb-3">Sound Design</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block mb-1">Attack <span id="attackValue">0.1</span></label>
+                                    <input id="attack" type="range" min="0" max="1" step="0.1" value="0.1"
+                                        class="w-full">
+                                </div>
+                                <div>
+                                    <label class="block mb-1">Decay <span id="decayValue">0.2</span></label>
+                                    <input id="decay" type="range" min="0" max="1" step="0.1" value="0.2"
+                                        class="w-full">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 border-t border-gray-700">
+                            <h3 class="text-xl font-bold mb-3">Themes</h3>
+                            <div class="grid grid-cols-2 gap-3">
+                                <button data-theme="ocean"
+                                    class="bg-blue-900 hover:bg-blue-800 px-3 py-2 rounded">Ocean</button>
+                                <button data-theme="sunset"
+                                    class="bg-orange-900 hover:bg-orange-800 px-3 py-2 rounded">Sunset</button>
+                                <button data-theme="forest"
+                                    class="bg-green-900 hover:bg-green-800 px-3 py-2 rounded">Forest</button>
+                                <button data-theme="neon"
+                                    class="bg-purple-900 hover:bg-purple-800 px-3 py-2 rounded">Neon</button>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 border-t border-gray-700">
+                            <h3 class="text-xl font-bold mb-3">Special Features</h3>
+                            <div class="space-y-3">
+                                <button id="emotion" class="w-full bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded">
+                                    Apply Emotion Template
+                                </button>
+                                <button id="mood" class="w-full bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded">
+                                    Mood to Music
+                                </button>
+                                <button id="challenge" class="w-full bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">
+                                    Get Random Challenge
+                                </button>
+                                <button id="share" class="w-full bg-pink-600 hover:bg-pink-700 px-4 py-2 rounded">
+                                    Share Your Melody
+                                </button>
+                                <button id="analytics" class="w-full bg-teal-600 hover:bg-teal-700 px-4 py-2 rounded">
+                                    Show Analytics
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Center Panel - Grid -->
+                <div class="lg:col-span-2 bg-gray-800 rounded-xl p-6 shadow-lg">
+                    <h2 class="text-2xl font-bold mb-4">Music Grid</h2>
+                    <div id="grid" class="grid grid-cols-8 gap-2 mb-6"></div>
+
+                    <div class="mt-8">
+                        <h3 class="text-xl font-bold mb-3">Current Challenge</h3>
+                        <div id="currentChallenge" class="bg-gray-700 p-4 rounded-lg min-h-16 italic">
+                            No active challenge. Click "Get Random Challenge" to start!
+                        </div>
+                    </div>
+
+                    <div class="mt-8">
+                        <h3 class="text-xl font-bold mb-3">Achievements</h3>
+                        <div id="achievements" class="grid grid-cols-3 gap-2">
+                            <div class="bg-gray-700 p-2 rounded text-center opacity-50" data-badge="first-note">First
+                                Note</div>
+                            <div class="bg-gray-700 p-2 rounded text-center opacity-50" data-badge="challenge">Challenge
+                            </div>
+                            <div class="bg-gray-700 p-2 rounded text-center opacity-50" data-badge="emotion">Emotion
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="bg-gray-800 p-4 text-center text-sm opacity-70 relative">
+            Created with Tone.js | Musical Mind - Emotion-Aware Music Playground
+        </footer>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+
+</html>
